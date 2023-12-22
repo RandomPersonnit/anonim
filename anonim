@@ -28,11 +28,11 @@ class SendMessageModule(loader.Module):
 
     def __init__(self):
         self.running = False
-        self.success_message = "<b>🏗Успешно запущено<b>"
-        self.already_running_message = "❌️Уже запущено"
+        self.success_message = "<b>🏗 Успешно запущено<b>"
+        self.already_running_message = "❌️ Уже запущено"
 
     @loader.unrestricted
-    async def akoncmd(self, message: types.Message):
+    async def aconcmd(self, message: types.Message):
         """Запускает отправку сообщения 'Получить карту' каждые 4 часа"""
         if self.running:
             await utils.answer(message, self.already_running_message)
@@ -42,29 +42,14 @@ class SendMessageModule(loader.Module):
         await utils.answer(message, self.success_message)
 
         while self.running:
-            await message.client.send_message('aniversecard_bot', '⚙️ Настройки')
-
-            # Ожидание ответа от бота
-            async for response in message.client.iter_messages('aniversecard_bot'):
-                if response.message.startswith('🥡 Количество круток:'):
-                    try:
-                        num_of_spins = int(response.message.split("🥡 Количество круток:")[1].strip())
-                    except ValueError:
-                        num_of_spins = 0
-
-                    for _ in range(num_of_spins):
-                        await message.client.send_message('aniversecard_bot', 'Получить карту')
-                        await asyncio.sleep(10)
-
-                    break  # Переходим к следующему циклу после получения ответа
-
+            await message.client.send_message('aniversecard_bot', 'Получить карту')
             await asyncio.sleep(4 * 60 * 60)
 
     @loader.unrestricted
-    async def akoffcmd(self, message: types.Message):
+    async def acoffcmd(self, message: types.Message):
         """Останавливает отправку сообщения 'Получить карту'"""
         if not self.running:
-            await utils.answer(message, "❌️Отправка уже остановлена.")
+            await utils.answer(message, "❌️ Отправка уже остановлена.")
             return
         self.running = False
-        await utils.answer(message, "✔️Отправка остановлена.")
+        await utils.answer(message, "✔️ Отправка остановлена.")
