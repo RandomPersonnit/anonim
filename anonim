@@ -3,11 +3,11 @@
 # ( o.o )  🔓 Not licensed.
 #  > ^ <   ⚠️ Owner of heta.hikariatama.ru doesn't take any responsibilities or intellectual property rights regarding this script
 # ---------------------------------------------------------------------------------
-# Name: BFGAuto
+# Name: AKFarmer
 # Description: Send mes
 # Author: @Tirandomperson
 # Commands:
-# .bbon | .bboff
+# .acon | .acoff
 # ---------------------------------------------------------------------------------
 
 
@@ -15,16 +15,16 @@
 
 import asyncio
 from hikkatl import types
-from telethon import functions, events
+from telethon import functions
 
 from .. import loader, utils
 
 
 @loader.tds
 class SendMessageModule(loader.Module):
-    """Модуль для автоматического фарма снежинок и снежков каждый час"""
+    """Модуль для автоматического получения карт каждые 4 часа в боте @Aniversecard_bot"""
 
-    strings = {"name": "BFGAuto"}
+    strings = {"name": "AniverseAuto"}
 
     def __init__(self):
         self.running = False
@@ -32,8 +32,8 @@ class SendMessageModule(loader.Module):
         self.already_running_message = "❌️Уже запущено"
 
     @loader.unrestricted
-    async def bboncmd(self, message: types.Message):
-        """Запускает отправку сообщений 'Собрать снежинки', 'Найти снежинки' и 'Слепить снежок' каждый час"""
+    async def akoncmd(self, message: types.Message):
+        """Запускает отправку сообщения 'Получить карту' каждые 4 часа"""
         if self.running:
             await utils.answer(message, self.already_running_message)
             return
@@ -42,39 +42,29 @@ class SendMessageModule(loader.Module):
         await utils.answer(message, self.success_message)
 
         while self.running:
-            await message.client(functions.messages.SendMessageRequest(
-                peer='bbon',
-                message='Собрать снежинки'
-            ))
-            await asyncio.sleep(10)
+            await message.client.send_message('aniversecard_bot', '⚙️ Настройки')
 
-            await message.client(functions.messages.SendMessageRequest(
-                peer='bbon',
-                message='Найти снежинки'
-            ))
-            await asyncio.sleep(10)
+            # Ожидание ответа от бота
+            async for response in message.client.iter_messages('aniversecard_bot'):
+                if response.message.startswith('🥡 Количество круток:'):
+                    try:
+                        num_of_spins = int(response.message.split("🥡 Количество круток:")[1].strip())
+                    except ValueError:
+                        num_of_spins = 0
 
-            await message.client(functions.messages.SendMessageRequest(
-                peer='bbon',
-                message='Слепить снежок'
-            ))
-            await asyncio.sleep(10)
+                    for _ in range(num_of_spins):
+                        await message.client.send_message('aniversecard_bot', 'Получить карту')
+                        await asyncio.sleep(10)
 
-            await asyncio.sleep(60 * 60)
+                    break  # Переходим к следующему циклу после получения ответа
+
+            await asyncio.sleep(4 * 60 * 60)
 
     @loader.unrestricted
-    async def bboffcmd(self, message: types.Message):
-        """Останавливает отправку сообщений 'Собрать снежинки', 'Найти снежинки' и 'Слепить снежок'"""
+    async def akoffcmd(self, message: types.Message):
+        """Останавливает отправку сообщения 'Получить карту'"""
         if not self.running:
             await utils.answer(message, "❌️Отправка уже остановлена.")
             return
         self.running = False
         await utils.answer(message, "✔️Отправка остановлена.")
-
-    @loader.unrestricted
-    async def command(self, message: types.Message):
-        """Отправляет сообщение 'Получить карту' боту @aniversecard_bot"""
-        await message.client(functions.messages.SendMessageRequest(
-            peer='bbon',
-            message='Собрать снежинки'
-        ))
