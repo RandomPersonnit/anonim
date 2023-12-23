@@ -28,12 +28,7 @@ class SendMessageModule(loader.Module):
         self.mine_success_message = "<b>🏗 Майнинг успешно запущен<b>"
         self.mine_already_running_message = "❌️ Майнинг уже запущен"
 
-        self.pk_running = False
-        self.pk_success_message = "<b>🏗 Автоответ на бота @pokemon_chatbot успешно запущен<b>"
-        self.pk_already_running_message = "❌️ Автоответ на бота @pokemon_chatbot уже запущен"
-
         self.ichigo_chat = "@ichigochat"
-        self.pokemon_chatbot = "@pokemon_chatbot"
 
     @loader.unrestricted
     async def aconcmd(self, message: types.Message):
@@ -126,32 +121,3 @@ class SendMessageModule(loader.Module):
             return
         self.mine_running = False
         await utils.answer(message, "✔️ Отправка остановлена.")
-
-    @loader.unrestricted
-    async def pkoncmd(self, message: types.Message):
-        """Запускает автоответ на бота @pokemon_chatbot"""
-        if self.pk_running:
-            await utils.answer(message, self.pk_already_running_message)
-            return
-        self.pk_running = True
-
-        await utils.answer(message, self.pk_success_message)
-
-        async def reply_handler(event):
-            if event.chat_id == self.pokemon_chatbot:
-                if event.photo and event.message and event.message == ".":
-                    await event.reply(".")
-                elif event.message and event.message.isdigit() and "." in event.message:
-                    number = event.message.replace(".", "")
-                    await event.reply(number)
-
-        message.client.add_event_handler(reply_handler, types.Message(incoming=True))
-
-    @loader.unrestricted
-    async def pkoffcmd(self, message: types.Message):
-        """Останавливает автоответ на бота @pokemon_chatbot"""
-        if not self.pk_running:
-            await utils.answer(message, "❌️ Автоответ уже остановлен.")
-            return
-        self.pk_running = False
-        await utils.answer(message, "✔️ Автоответ остановлен.")
