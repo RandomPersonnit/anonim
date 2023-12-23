@@ -114,7 +114,7 @@ class SendMessageModule(loader.Module):
 
     @loader.unrestricted
     async def meoncmd(self, message: types.Message):
-        """Запускает автоматическую отправку сообщения 'Копать' каждую 1 секунду"""
+        """Запускает автоматическую отправку сообщения 'Копать' каждые 2 секунды"""
         if self.mine_running:
             await utils.answer(message, self.mine_already_running_message)
             return
@@ -124,7 +124,7 @@ class SendMessageModule(loader.Module):
 
         while self.mine_running:
             await message.client.send_message('@mine_evo_bot', 'Копать')
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
 
     @loader.unrestricted
     async def meoffcmd(self, message: types.Message):
