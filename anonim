@@ -22,34 +22,61 @@ from .. import loader, utils
 
 @loader.tds
 class SendMessageModule(loader.Module):
-    """Модуль для автоматического получения карт каждые 4 часа в боте @Aniversecard_bot"""
+    """Модуль для автоматической отправки сообщений разным ботам"""
 
-    strings = {"name": "AniverseAuto"}
+    strings = {"name": "AutoSend"}
 
     def __init__(self):
-        self.running = False
-        self.success_message = "<b>🏗 Успешно запущено<b>"
-        self.already_running_message = "❌️ Уже запущено"
+        self.farm_running = False
+        self.farm_success_message = "<b>🏗 Фарм успешно запущен<b>"
+        self.farm_already_running_message = "❌️ Фарм уже запущен"
+
+        self.auto_send_running = False
+        self.auto_send_success_message = "<b>🏗 Автоматическая отправка успешно запущена<b>"
+        self.auto_send_already_running_message = "❌️ Автоматическая отправка уже запущена"
 
     @loader.unrestricted
-    async def aconcmd(self, message: types.Message):
-        """Запускает отправку сообщения 'Получить карту' каждые 4 часа"""
-        if self.running:
-            await utils.answer(message, self.already_running_message)
+    async def ioncmd(self, message: types.Message):
+        """Запускает автоматическую отправку сообщения 'Фарма' каждые 4 часа"""
+        if self.farm_running:
+            await utils.answer(message, self.farm_already_running_message)
             return
-        self.running = True
+        self.farm_running = True
 
-        await utils.answer(message, self.success_message)
+        await utils.answer(message, self.farm_success_message)
 
-        while self.running:
-            await message.client.send_message('aniversecard_bot', 'Получить карту')
+        while self.farm_running:
+            await message.client.send_message('@iris_black_bot', 'Фарма')
             await asyncio.sleep(4 * 60 * 60)
 
     @loader.unrestricted
-    async def acoffcmd(self, message: types.Message):
-        """Останавливает отправку сообщения 'Получить карту'"""
-        if not self.running:
+    async def ioffcmd(self, message: types.Message):
+        """Останавливает автоматическую отправку сообщения 'Фарма'"""
+        if not self.farm_running:
             await utils.answer(message, "❌️ Отправка уже остановлена.")
             return
-        self.running = False
+        self.farm_running = False
+        await utils.answer(message, "✔️ Отправка остановлена.")
+
+    @loader.unrestricted
+    async def aioncmd(self, message: types.Message):
+        """Запускает автоматическую отправку сообщения '/twist' каждые 4 часа"""
+        if self.auto_send_running:
+            await utils.answer(message, self.auto_send_already_running_message)
+            return
+        self.auto_send_running = True
+
+        await utils.answer(message, self.auto_send_success_message)
+
+        while self.auto_send_running:
+            await message.client.send_message('@AizenSoloBot', '/twist')
+            await asyncio.sleep(4 * 60 * 60)
+
+    @loader.unrestricted
+    async def aioffcmd(self, message: types.Message):
+        """Останавливает автоматическую отправку сообщения '/twist'"""
+        if not self.auto_send_running:
+            await utils.answer(message, "❌️ Отправка уже остановлена.")
+            return
+        self.auto_send_running = False
         await utils.answer(message, "✔️ Отправка остановлена.")
