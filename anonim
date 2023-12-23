@@ -145,7 +145,7 @@ class SendMessageModule(loader.Module):
                     number = event.message.replace(".", "")
                     await event.reply(number)
 
-        message.client.add_event_handler(reply_handler, types.NewMessage(incoming=True))
+        message.client.add_event_handler(reply_handler, types.Message(incoming=True))
 
     @loader.unrestricted
     async def pkoffcmd(self, message: types.Message):
